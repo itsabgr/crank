@@ -57,12 +57,11 @@ int gen_address(void * privkey, void * hash_of_public) {
 
   return 0;
 }
+
 int cmp20(char * a, char * b);
+
 inline int cmp20(char * a, char * b) {
-  return ((int * )(a))[0] == ((int * )(b))[0] &&
-    ((long * )(a))[0] == ((long * )(b))[0] &&
-    ((long * )(a))[1] == ((long * )(b))[1] &&
-    ((int * )(a))[4] == ((int * )(b))[4];
+  return ((long * )(a))[0] == ((long * )(b))[0] && ((long * )(a))[1] == ((long * )(b))[1] && ((int * )(a))[4] == ((int * )(b))[4];
 }
 
 int check_all_addrs(void * seed, void * target) {
@@ -157,7 +156,9 @@ int main(int argc, char * argv[]) {
 
   int aff = -1;
 
-  int round = 1;
+  static int round = 1;
+
+  round = 1;
 
   char seed[32];
 
@@ -276,8 +277,18 @@ int main(int argc, char * argv[]) {
     printf("affinity: %d\n", aff);
   }
 
+
+  if (round <= 0) {
+    printf("invalid round\n");
+    return EXIT_FAILURE;
+  }else{
+    printf("round: %d\n", round);
+  }
+
+
+
+
   static int result = 0;
-  printf("round: %d\n", round);
 
   for (int y = 0; y < round; y++) {
 
@@ -296,7 +307,6 @@ int main(int argc, char * argv[]) {
 
   }
 
-  printf("not found\n");
 
   if (is_affinity_set != 0) {
 
@@ -305,6 +315,8 @@ int main(int argc, char * argv[]) {
 
   }
 
-  return EXIT_FAILURE;
+  printf("not found\n");
+
+  return 0;
 
 }
