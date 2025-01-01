@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2022",                        // Set the JavaScript language version for emitted JavaScript and include compatible library declarations.
+    "module": "node16",                        // Use the latest ECMAScript module system.
+    "lib": ["es2022"],                         // Include the latest standard library.
+    "allowJs": false,                           // Disallow JavaScript files. Set to true if you want to allow JS alongside TS.
+    "checkJs": false,                           // Disable type checking on JavaScript files.
+    "outDir": "./dist",                         // Redirect output structure to the 'dist' directory.
+    "rootDir": "./src",                         // Specify the root directory of input files.
+    "strict": true,                             // Enable all strict type-checking options.
+    "moduleResolution": "node16",                 // Use Node.js-style module resolution.
+    "esModuleInterop": true,                    // Enable compatibility with CommonJS and ES Modules.
+    "forceConsistentCasingInFileNames": true,   // Ensure consistent casing in imports.
+    "skipLibCheck": true,                       // Skip type checking of declaration files.
+    "sourceMap": true,                          // Generate corresponding '.map' files.
+    "resolveJsonModule": true,                  // Allow importing JSON modules.
+    "isolatedModules": true,                    // Ensure that each file can be safely transpiled without relying on other imports.
+    "noEmit": false,                            // Allow the compiler to emit output files.
+    "types": ["node"],                          // Include type definitions for Node.js.
+    "incremental": false,                        // Enable incremental compilation for faster builds.
+
+  },
+  "include": ["src/*"],
+  "exclude": ["node_modules"]   // Exclude 'node_modules' and test files.
+}
