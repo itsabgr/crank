@@ -5,7 +5,7 @@ import {readFileSync} from "fs"
 import {cpus} from "os"
 
 const configSchema = z.object({
-    crank: z.string().nonempty(),
+    bin: z.string().nonempty(),
     timeout: z.number().finite().nonnegative(),
     round: z.number().finite().positive(),
     cpus: z.array(z.number().finite().positive().max(cpus().length - 1)).nonempty().max(cpus().length - 1),
@@ -25,7 +25,7 @@ const configSchema = z.object({
 
     const runner = new Runner(db, {
         round: config.round,
-        bin: config.crank,
+        bin: config.bin,
         timeout: config.timeout * 1000,
     })
 
@@ -37,7 +37,7 @@ const configSchema = z.object({
     } finally {
         setTimeout(() => {
             process.exit(0)
-        }, 2000)
+        }, 4000)
 
         await db.end();
 
