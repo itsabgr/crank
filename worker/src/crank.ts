@@ -75,7 +75,11 @@ export default function crank(target: string, config: Config = {}) {
                     stderr,
                 })
             } else if (timedout) {
-                reject(new Error('timeout'))
+                resolve({
+                    code:2,
+                    stdout,
+                    stderr
+                })
             } else if (signal) {
                 reject(new Error(signal))
             } else {

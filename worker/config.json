@@ -1,9 +1,9 @@
 {
   "crank": "crank",
-  "timeout": 0,
-  "round": 10,
+  "timeout": 60000,
+  "round": 100,
   "cpus": [
-    19,18,17,16
+    19,18,16
   ],
   "db": "postgres://postgres:password@localhost/postgres"
 }

@@ -1,4 +1,3 @@
-import {spawn} from "node:child_process";
 import Database from "./db";
 import {Config as CrankConfig, Result} from "./crank";
 import crank from "./crank";
@@ -42,16 +41,11 @@ export default class Runner {
         }
 
         while (!this.stop) {
-            try {
-                const result = await this._do(config)
-                if (result.code == 1) {
-                    throw result;
-                }
-                await sleep(100)
-            } catch (err) {
-                console.error(err)
-                await sleep(3000)
+            const result = await this._do(config)
+            if (result.code == 1) {
+                throw result;
             }
+            await sleep(100)
         }
     }
 
@@ -74,7 +68,7 @@ export default class Runner {
 }
 
 
-function sleep(ms: number) {
+export function sleep(ms: number) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms)
     })

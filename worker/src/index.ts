@@ -1,5 +1,5 @@
 import Database from "./db";
-import Runner from "./runner";
+import Runner, {sleep} from "./runner";
 import {z} from "zod";
 import {readFileSync} from "fs"
 import {cpus} from "os"
@@ -32,5 +32,10 @@ const configSchema = z.object({
 
     await runner.start(config.cpus)
 
+    db.end();
+
+    await sleep(1000);
+
+    process.exit(0)
 
 })()
