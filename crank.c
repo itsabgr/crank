@@ -204,7 +204,8 @@ int main(int argc, char * argv[]) {
     switch (opt) {
     case 't':
       if (0 != hex_to_bytes_fixed(optarg, target, 20)) {
-        printf("invalid target\n");
+        errno = EINVAL;
+        perror("invalid target");
         return EXIT_FAILURE;
       }
       is_target_set = 1;
@@ -218,25 +219,29 @@ int main(int argc, char * argv[]) {
       break;
     case 's':
       if (0 != hex_to_bytes_fixed(optarg, seed, 32)) {
-        printf("invalid seed\n");
+        errno = EINVAL;
+        perror("invalid seed");
         return EXIT_FAILURE;
       }
       is_seed_set = 1;
       break;
     default:
-      printf("usage: %s --target HEX [--seed HEX] [--affinity NUM] [--round NUM]\n", argv[0]);
+      errno = EINVAL;
+      printf("usage beta: %s --target HEX [--seed HEX] [--affinity NUM] [--round NUM]\n", argv[0]);
+      perror("invalid usage");
       return EXIT_FAILURE;
     }
   }
 
   if (optind < argc) {
-    printf("non-option arguments:\n");
-    while (optind < argc)
-      printf("%s\n", argv[optind++]);
+    errno = EINVAL;
+    perror("non-option arguments");
+    return EXIT_FAILURE;
   }
 
   if (is_target_set == 0) {
-    printf("target option is not set\n");
+    errno = EINVAL;
+    perror("target option is not set");
     return EXIT_FAILURE;
   } else {
     printf("target: ");
@@ -247,11 +252,20 @@ int main(int argc, char * argv[]) {
 
     int fd = open("/dev/random", O_RDONLY);
 
-    if (0 >= fd) return EXIT_FAILURE;
+    if (0 >= fd) {
+      errno = fd;
+      perror( "failed to read /dev/random");
+      return EXIT_FAILURE;
+    }
 
     int n = read(fd, seed, 32);
 
-    if (n != 32) return EXIT_FAILURE;
+    if (n != 32) {
+      errno = EINVAL;
+      perror("invalid random seed length");
+      return EXIT_FAILURE;
+    }
+
 
     close(fd);
     printf("random seed: ");
@@ -262,25 +276,24 @@ int main(int argc, char * argv[]) {
   print_hex(seed, 32);
 
   if (is_affinity_set != 0) {
-    if (0 != set_current_thread_affinity(aff)) return EXIT_FAILURE;
-
-    if (set_realtime_scheduler(SCHED_FIFO, 99) != 0) {
+    if (0 != set_current_thread_affinity(aff)) {
+      perror("failed to set cpu affinity");
       return EXIT_FAILURE;
     }
-
+    if (set_realtime_scheduler(SCHED_FIFO, 99) != 0) {
+      perror("failed to set realtime scheduler");
+      return EXIT_FAILURE;
+    }
     printf("affinity: %d\n", aff);
   }
 
-
   if (round <= 0) {
-    printf("invalid round\n");
+    errno = EINVAL;
+    perror("invalid round");
     return EXIT_FAILURE;
-  }else{
+  } else {
     printf("round: %d\n", round);
   }
-
-
-
 
   static int result = 0;
 
@@ -294,13 +307,13 @@ int main(int argc, char * argv[]) {
       return 0;
     }
     if (result != -4) {
+      errno = EINVAL;
       return EXIT_FAILURE;
     }
 
     hash_in_place(seed);
 
   }
-
 
   if (is_affinity_set != 0) {
 
@@ -309,8 +322,8 @@ int main(int argc, char * argv[]) {
 
   }
 
-  printf("not found\n");
+  fprintf(stderr, "not found\n");
 
-  return 0;
+  return EXIT_FAILURE+1;
 
 }
