@@ -1,13 +1,9 @@
 #include <sched.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <unistd.h>
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <sched.h>
 #include <unistd.h>
-#include <errno.h>
 #include <string.h>
 
 
