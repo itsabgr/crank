@@ -1,20 +1,20 @@
 import Database from "./db";
-import Runner, {sleep} from "./runner";
+import Runner from "./runner";
 import {z} from "zod";
 import {readFileSync} from "fs"
 import {cpus} from "os"
 
 const configSchema = z.object({
     crank: z.string().nonempty(),
-    timeout:z.number().finite().nonnegative(),
-    round:z.number().finite().positive(),
-    cpus: z.array(z.number().finite().positive().max(cpus().length-1)).nonempty().max(cpus().length-1),
+    timeout: z.number().finite().nonnegative(),
+    round: z.number().finite().positive(),
+    cpus: z.array(z.number().finite().positive().max(cpus().length - 1)).nonempty().max(cpus().length - 1),
     db: z.string().nonempty(),
 });
 
-(async()=>{
+(async () => {
 
-    const configData = readFileSync(process.argv[process.argv.length-1])
+    const configData = readFileSync(process.argv[process.argv.length - 1])
 
     const config = configSchema.parse(JSON.parse(configData.toString()))
 
@@ -23,19 +23,24 @@ const configSchema = z.object({
     const db = await Database.connect(config.db)
 
 
-    const runner = new Runner(db,{
-        round:config.round,
+    const runner = new Runner(db, {
+        round: config.round,
         bin: config.crank,
-        timeout: config.timeout,
+        timeout: config.timeout * 1000,
     })
 
+    try {
+        await runner.start(config.cpus)
 
-    await runner.start(config.cpus)
+    } catch (err) {
+        console.error(err)
+    } finally {
+        setTimeout(() => {
+            process.exit(0)
+        }, 2000)
 
-    db.end();
+        await db.end();
 
-    await sleep(1000);
-
-    process.exit(0)
+    }
 
 })()

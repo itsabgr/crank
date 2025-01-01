@@ -76,7 +76,7 @@ export default function crank(target: string, config: Config = {}) {
                 })
             } else if (timedout) {
                 resolve({
-                    code:2,
+                    code: 2,
                     stdout,
                     stderr
                 })

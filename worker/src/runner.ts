@@ -1,5 +1,5 @@
 import Database from "./db";
-import {Config as CrankConfig, Result} from "./crank";
+import {Config as CrankConfig} from "./crank";
 import crank from "./crank";
 
 export default class Runner {
@@ -41,28 +41,25 @@ export default class Runner {
         }
 
         while (!this.stop) {
-            const result = await this._do(config)
-            if (result.code == 1) {
-                throw result;
-            }
-            await sleep(100)
+            await this._do(config)
         }
+
     }
 
-    private async _do(config: CrankConfig): Promise<Result> {
-
+    private async _do(config: CrankConfig): Promise<void> {
         const target = await this._db.getTarget()
         const start = process.hrtime.bigint()
         const result = await crank(target, config)
+        const elapsed = process.hrtime.bigint() - start
         if (result.code == 0) {
             console.log(result)
-            await sleep(100)
+            await this._db.appendLog(result.code, result.stderr, result.stdout);
+            await sleep(2000)
+        }else if (result.code == 2) {
+            console.log(`[${formattedTime(new Date())}] c: ${config.affinity} r: ${config.round} d: ${elapsed / 1000000000n}`)
+        }else{
+            throw result
         }
-        const elapsed = process.hrtime.bigint() - start
-        console.log(`${formattedTime(new Date())} ${config.affinity} ${elapsed / 1000000000n}`)
-        await this._db.appendLog(result.code, result.stderr, result.stdout);
-        return result;
-
     }
 
 }

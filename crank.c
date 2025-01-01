@@ -206,7 +206,7 @@ int main(int argc, char * argv[]) {
       if (0 != hex_to_bytes_fixed(optarg, target, 20)) {
         errno = EINVAL;
         perror("invalid target");
-        return EXIT_FAILURE;
+        return 1;
       }
       is_target_set = 1;
       break;
@@ -221,7 +221,7 @@ int main(int argc, char * argv[]) {
       if (0 != hex_to_bytes_fixed(optarg, seed, 32)) {
         errno = EINVAL;
         perror("invalid seed");
-        return EXIT_FAILURE;
+        return 1;
       }
       is_seed_set = 1;
       break;
@@ -229,20 +229,20 @@ int main(int argc, char * argv[]) {
       errno = EINVAL;
       printf("usage beta: %s --target HEX [--seed HEX] [--affinity NUM] [--round NUM]\n", argv[0]);
       perror("invalid usage");
-      return EXIT_FAILURE;
+      return 1;
     }
   }
 
   if (optind < argc) {
     errno = EINVAL;
     perror("non-option arguments");
-    return EXIT_FAILURE;
+    return 1;
   }
 
   if (is_target_set == 0) {
     errno = EINVAL;
     perror("target option is not set");
-    return EXIT_FAILURE;
+    return 1;
   } else {
     printf("target: ");
     print_hex(target, 20);
@@ -255,7 +255,7 @@ int main(int argc, char * argv[]) {
     if (0 >= fd) {
       errno = fd;
       perror( "failed to read /dev/random");
-      return EXIT_FAILURE;
+      return 1;
     }
 
     int n = read(fd, seed, 32);
@@ -263,7 +263,7 @@ int main(int argc, char * argv[]) {
     if (n != 32) {
       errno = EINVAL;
       perror("invalid random seed length");
-      return EXIT_FAILURE;
+      return 1;
     }
 
 
@@ -278,11 +278,11 @@ int main(int argc, char * argv[]) {
   if (is_affinity_set != 0) {
     if (0 != set_current_thread_affinity(aff)) {
       perror("failed to set cpu affinity");
-      return EXIT_FAILURE;
+      return 1;
     }
     if (set_realtime_scheduler(SCHED_FIFO, 99) != 0) {
       perror("failed to set realtime scheduler");
-      return EXIT_FAILURE;
+      return 1;
     }
     printf("affinity: %d\n", aff);
   }
@@ -290,7 +290,7 @@ int main(int argc, char * argv[]) {
   if (round <= 0) {
     errno = EINVAL;
     perror("invalid round");
-    return EXIT_FAILURE;
+    return 1;
   } else {
     printf("round: %d\n", round);
   }
@@ -308,7 +308,7 @@ int main(int argc, char * argv[]) {
     }
     if (result != -4) {
       errno = EINVAL;
-      return EXIT_FAILURE;
+      return 1;
     }
 
     hash_in_place(seed);
@@ -324,6 +324,6 @@ int main(int argc, char * argv[]) {
 
   fprintf(stderr, "not found\n");
 
-  return EXIT_FAILURE+1;
+  return 2;
 
 }
