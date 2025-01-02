@@ -17,17 +17,14 @@ export default class Runner {
     async start(affinities: number[]) {
         try {
             const promises: Promise<void>[] = [];
-
             for (let affinity of affinities) {
                 promises.push(this._worker(affinity))
             }
-
             await Promise.any(promises)
         } finally {
             this.stop = true
 
         }
-
     }
 
     private async _worker(affinity?: number) {
@@ -39,14 +36,15 @@ export default class Runner {
             round: this._crankConfig.round,
             affinity,
         }
-
+        let i = 1;
         while (!this.stop) {
-            await this._do(config)
+            await this._do(i, config)
+            i++
         }
 
     }
 
-    private async _do(config: CrankConfig): Promise<void> {
+    private async _do(i: number, config: CrankConfig): Promise<void> {
         const target = await this._db.getTarget()
         const start = process.hrtime.bigint()
         const result = await crank(target, config)
@@ -54,9 +52,10 @@ export default class Runner {
         if (result.code == 0) {
             console.log(result)
             await this._db.appendLog(result.code, result.stderr, result.stdout);
-            await sleep(2000)
+            await sleep(1000)
         }else if (result.code == 2) {
-            console.log(`[${formattedTime(new Date())}] c: ${config.affinity} r: ${config.round} d: ${elapsed / 1000000000n}`)
+            //await this._db.appendLog(result.code, result.stderr, result.stdout);
+            console.log(`[${formattedTime(new Date())}] i: ${i} c: ${config.affinity} r: ${config.round} d: ${elapsed / 1000000000n} t: ${target}`)
         }else{
             throw result
         }
